@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Admin · Dashboard · eObywatel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root{
+      --bg:#0b1020; --card:rgba(20,24,45,.78); --border:rgba(120,129,255,.18); --fg:#e7e9ff;
+      --muted:#cbd5ff; --muted2:#9aa4e3; --accent1:#8b5cf6; --accent2:#ec4899; --accent3:#3b82f6;
+    }
+
+    html,body{height:100%;margin:0}
+    body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;overflow-x:hidden}
+    .bg{position:fixed;inset:0;z-index:0}
+    #nebula{position:absolute;inset:0;filter:blur(22px) saturate(115%);opacity:.9}
+    .stars{position:absolute;inset:0;background:radial-gradient(1.4px 1.4px at 20% 25%,#ffffffc9,transparent 55%),radial-gradient(1.2px 1.2px at 65% 70%,#a5b4fcbf,transparent 55%);filter:blur(.5px);opacity:.55;animation:float 36s linear infinite}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(-40px)}}
+
+    .wrap{position:relative;z-index:1;max-width:1100px;margin:24px auto;padding:0 16px}
+
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand h1{font-family:'Montserrat',sans-serif;font-size:28px;margin:0;background:linear-gradient(90deg,#fff,var(--accent1) 40%,var(--accent2) 80%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .actions{display:flex;gap:10px}
+    .btn{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .btn.ghost{background:rgba(15,23,42,.6);border:1px solid rgba(148,163,184,.3);color:var(--muted)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent3),var(--accent1),var(--accent2));color:#fff;box-shadow:0 14px 32px rgba(139,92,246,.35)}
+    .btn.secondary{background:rgba(15,23,42,.7);border:1px solid rgba(148,163,184,.35);color:#cbd5ff}
+    .btn.danger{background:linear-gradient(90deg,#ef4444,#f43f5e);color:#fff;box-shadow:0 10px 24px rgba(244,63,94,.28)}
+    .btn.sm{padding:8px 12px;border-radius:10px;font-size:13px}
+
+    .card{background:var(--card);border:1px solid var(--border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:18px;box-shadow:0 25px 60px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.03);padding:18px}
+    .adder{display:flex;gap:10px;align-items:center;margin:0 0 14px;flex-wrap:wrap}
+    .inpt{display:flex;align-items:center;gap:10px;background:#0f1328;border:1px solid rgba(148,163,184,.28);border-radius:12px;padding:10px 12px;min-width:260px}
+    .inpt input{flex:1;background:transparent;border:0;color:#e7e9ff;font-size:14px;outline:none}
+    /* simple checkbox styling */
+    .switch{display:inline-flex;align-items:center;gap:8px}
+    .switch input{accent-color:#8b5cf6}
+
+    .table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    .thead{display:grid;grid-template-columns:1fr 140px 160px 200px;gap:12px;padding:12px 14px;margin:0 0 8px;color:#cbd5ffbf}
+    .thead > div{align-self:center}
+    .row{display:grid;grid-template-columns:1fr 140px 160px 200px;gap:12px;align-items:center;background:rgba(15,23,42,.6);border:1px solid rgba(148,163,184,.16);border-radius:12px;padding:12px 14px}
+    .key{display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;word-break:break-all}
+    .status .chip{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 10px;font-weight:800;font-size:12px}
+    .chip.on{color:#10f77d;background:rgba(16,247,125,.1);border:1px solid rgba(16,247,125,.25)}
+    .chip.off{color:#ff6b6b;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25)}
+    .toggle{display:flex;gap:10px;justify-self:start;justify-content:flex-start;align-items:center;flex-wrap:wrap}
+    .toggle .btn{min-height:34px}
+
+    .loadmore{display:flex;justify-content:center;margin-top:14px}
+
+    @media (max-width:760px){
+      .thead{display:none}
+      .row{grid-template-columns:1fr;gap:8px}
+      .status,.expires,.toggle{display:flex;justify-content:space-between}
+      .toggle{justify-content:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"><canvas id="nebula"></canvas><div class="stars"></div></div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand"><h1>Dashboard</h1></div>
+      <div class="actions">
+        <a class="btn secondary" href="/index.html" title="Strona główna" aria-label="Strona główna">Strona główna</a>
+        <button class="btn ghost" id="refresh">Odśwież</button>
+        <button class="btn danger" id="logout">Wyloguj</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="adder">
+        <div class="inpt"><input id="newKey" placeholder="Nowy token (bez spacji)" maxlength="128" /></div>
+        <div class="inpt" style="min-width:180px"><input id="newExpires" type="number" placeholder="Czas ważności" min="1" max="365" /></div>
+        <label class="switch"><input type="checkbox" id="testMode" /> <span id="unitLabel">Dni</span></label>
+        <label class="switch"><input type="checkbox" id="newActive" checked /> Aktywny</label>
+        <button class="btn primary" id="addToken">Dodaj token</button>
+      </div>
+      <div class="thead"><div>Token</div><div>Status</div><div>Wygasa</div><div>Akcja</div></div>
+      <div id="list"></div>
+      <div class="loadmore"><button class="btn primary" id="loadMore" style="display:none">Załaduj więcej</button></div>
+    </div>
+  </div>
+
+  <script>
+    // Sprawdź czy użytkownik jest zalogowany
+    if (!sessionStorage.getItem('admin_password')) {
+      location.href = '/admin/index.html';
+    }
+
+    // Tło
+    (function(){ const c=document.getElementById('nebula'); if(!c) return; const x=c.getContext('2d'); let w,h,dpr,bl; function R(){ dpr=Math.min(devicePixelRatio||1,2); w=c.width=Math.floor(innerWidth*dpr); h=c.height=Math.floor(innerHeight*dpr); c.style.width=innerWidth+'px'; c.style.height=innerHeight+'px'; bl=[{x:w*.3,y:h*.35,r:Math.max(w,h)*.22,dx:.08*dpr,dy:-.05*dpr,col:'rgba(99,102,241,.32)'},{x:w*.65,y:h*.25,r:Math.max(w,h)*.26,dx:-.06*dpr,dy:.05*dpr,col:'rgba(168,85,247,.30)'},{x:w*.5,y:h*.78,r:Math.max(w,h)*.20,dx:.05*dpr,dy:.08*dpr,col:'rgba(56,189,248,.18)'}]; } function D(){ x.clearRect(0,0,w,h); for(const b of bl){ const g=x.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); g.addColorStop(0,b.col); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.beginPath(); x.arc(b.x,b.y,b.r,0,Math.PI*2); x.fill(); b.x+=b.dx; b.y+=b.dy; if(b.x<-b.r) b.x=w+b.r; if(b.x>w+b.r) b.x=-b.r; if(b.y<-b.r) b.y=h+b.r; if(b.y>h+b.r) b.y=-b.r; } requestAnimationFrame(D);} addEventListener('resize',R); R(); requestAnimationFrame(D); })();
+
+    // DOM refs
+    const listEl = document.getElementById('list');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const refreshBtn = document.getElementById('refresh');
+    const addBtn = document.getElementById('addToken');
+    const newKeyEl = document.getElementById('newKey');
+    const newActiveEl = document.getElementById('newActive');
+    const newExpiresEl = document.getElementById('newExpires');
+    const testModeEl = document.getElementById('testMode');
+    const unitLabelEl = document.getElementById('unitLabel');
+    
+    // Toggle between minutes and days
+    testModeEl.addEventListener('change', () => {
+      if (testModeEl.checked) {
+        unitLabelEl.textContent = 'Minuty (test)';
+        newExpiresEl.placeholder = 'Minuty ważności';
+        newExpiresEl.max = '60';
+      } else {
+        unitLabelEl.textContent = 'Dni';
+        newExpiresEl.placeholder = 'Dni ważności';
+        newExpiresEl.max = '365';
+      }
+    });
+
+    // Local state
+    const state = new Map(); // key -> { key, active, used, expiresAt }
+    const pendingUntil = new Map(); // key -> expiresAt (ms since epoch)
+    const pendingDeletes = new Map(); // key -> expiresAt (ms since epoch)
+    let busy = false; let syncTimer = null;
+
+    function scheduleSync(ms=1500){ if(syncTimer) clearTimeout(syncTimer); syncTimer = setTimeout(()=>{ syncTimer=null; syncAll(); }, ms); }
+
+    // Render minimal-diff: upsert/update/remove rows
+    function renderFromState(){
+      const desired = Array.from(state.values()).sort((a,b)=> a.key<b.key?1:-1);
+      const seen = new Set();
+      for(const item of desired){
+        const sel = `[data-key="${CSS.escape(item.key)}"]`;
+        let row = listEl.querySelector(sel);
+        if(!row){ row = buildRow(item); listEl.insertBefore(row, listEl.firstChild); }
+        updateRow(row, item);
+        seen.add(item.key);
+      }
+      for(const child of Array.from(listEl.children)){
+        const k = child.getAttribute('data-key');
+        if(k && !seen.has(k)) child.remove();
+      }
+    }
+
+    function buildRow(item){
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.setAttribute('data-key', item.key);
+      row.innerHTML = `
+        <div class="key">
+          <span class="token"></span>
+          <button class="btn secondary sm copy" title="Kopiuj token" aria-label="Kopiuj token">Skopiuj</button>
+        </div>
+        <div class="status"><span class="chip"></span></div>
+        <div class="expires" style="font-size:13px;color:#9aa4e3"></div>
+        <div class="toggle">
+          <button class="btn sm toggle-btn"></button>
+          <button class="btn secondary sm renew" title="Odnów token" aria-label="Odnów token" style="display:none">Odnów</button>
+          <button class="btn danger sm trash" title="Usuń token" aria-label="Usuń token">Usuń</button>
+        </div>`;
+
+      const copyBtn = row.querySelector('.copy');
+      copyBtn.addEventListener('click', async ()=>{
+        const prev = copyBtn.textContent;
+        try{ await navigator.clipboard.writeText(item.key); copyBtn.textContent='Skopiowano'; setTimeout(()=>copyBtn.textContent=prev, 1200); }
+        catch{ copyBtn.textContent='Błąd'; setTimeout(()=>copyBtn.textContent=prev, 1200); }
+      });
+
+      const tbtn = row.querySelector('.toggle-btn');
+      tbtn.addEventListener('click', async ()=>{
+        const k = row.getAttribute('data-key');
+        const cur = state.get(k); if(!cur) return;
+        if (cur.used) return; // don't toggle when used
+        const prev = { ...cur };
+        cur.active = !cur.active; state.set(k, cur); updateRow(row, cur);
+        try{
+          const res = await fetch('/api/admin/tokens?key='+encodeURIComponent(k), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ active: cur.active }) });
+          if(!res.ok){ throw new Error('HTTP '+res.status); }
+          scheduleSync(2000);
+        }catch(e){ state.set(k, prev); updateRow(row, prev); alert('Nie udało się zapisać.'); }
+      });
+
+      const renewBtn = row.querySelector('.renew');
+      renewBtn.addEventListener('click', async ()=>{
+        const k = row.getAttribute('data-key');
+        const cur = state.get(k); if(!cur) return;
+        const prev = { ...cur };
+        cur.used = false; state.set(k, cur); updateRow(row, cur);
+        try{
+          const res = await fetch('/api/admin/tokens?key='+encodeURIComponent(k), { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ used: false }) });
+          if(!res.ok){ throw new Error('HTTP '+res.status); }
+          scheduleSync(1500);
+        }catch(e){ state.set(k, prev); updateRow(row, prev); alert('Nie udało się odnowić.'); }
+      });
+
+      const delBtn = row.querySelector('.trash');
+      delBtn.addEventListener('click', async ()=>{
+        const k = row.getAttribute('data-key');
+        if(!confirm('Usunąć token? Tego nie można cofnąć.')) return;
+        const snapshot = state.get(k);
+        // Hide immediately and keep hidden while KV propagates
+        state.delete(k); row.remove();
+        pendingDeletes.set(k, Date.now() + 15000);
+        try{
+          const res = await fetch('/api/admin/tokens?key='+encodeURIComponent(k), { method:'DELETE' });
+          if(!res.ok){ throw new Error('HTTP '+res.status); }
+          scheduleSync(1000);
+        }catch(e){ if(snapshot){ state.set(k, snapshot); renderFromState(); } alert('Nie udało się usunąć.'); }
+      });
+
+      return row;
+    }
+
+    function updateRow(row, item){
+      row.querySelector('.token').textContent = item.key;
+      const chip = row.querySelector('.status .chip');
+      if (item.used){
+        chip.className = 'chip off';
+        chip.textContent = 'USED';
+      } else {
+        const on = !!item.active;
+        chip.className = 'chip ' + (on?'on':'off');
+        chip.textContent = on ? 'ACTIVE' : 'DISABLED';
+      }
+      
+      // Display expiration date
+      const expiresEl = row.querySelector('.expires');
+      if (item.expiresAt) {
+        const date = new Date(item.expiresAt);
+        const now = Date.now();
+        const isExpired = now > item.expiresAt;
+        const dateStr = date.toLocaleDateString('pl-PL', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        expiresEl.textContent = dateStr;
+        expiresEl.style.color = isExpired ? '#ff6b6b' : '#9aa4e3';
+      } else {
+        expiresEl.textContent = 'Bez limitu';
+        expiresEl.style.color = '#9aa4e3';
+      }
+      
+      const tbtn = row.querySelector('.toggle-btn');
+      const on = !!item.active;
+      tbtn.className = 'btn ' + (on? 'ghost':'primary') + ' sm toggle-btn';
+      tbtn.textContent = on ? 'Wyłącz' : 'Włącz';
+      if (item.used) { tbtn.style.display = 'none'; } else { tbtn.style.display = 'inline-block'; }
+      const renewBtn = row.querySelector('.renew');
+      renewBtn.style.display = item.used ? 'inline-block' : 'none';
+    }
+
+    function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+
+    // Sync all pages, mirror into local state, then render
+    async function syncAll(){
+      if (busy) return; busy = true;
+      try{
+        const collected = [];
+        let cur = undefined; let traversed = false;
+        do{
+          const params = new URLSearchParams({ limit:'200' });
+          if(cur) params.set('cursor', cur);
+          const res = await fetch('/api/admin/tokens?'+params.toString());
+          if(!res.ok){ if(res.status===401){ location.href='/admin/index.html'; return; } throw new Error('HTTP '+res.status); }
+          const data = await res.json();
+          for(const it of data.items){ collected.push({ key: it.key, active: !!it.active, used: !!it.used, expiresAt: it.expiresAt || null }); }
+          cur = data.cursor || undefined;
+          if (!cur) traversed = true;
+        } while(cur);
+        // If KV temporarily returned nothing, keep current UI
+        if (collected.length === 0 && state.size > 0){ return; }
+
+        const now = Date.now();
+        const next = new Map();
+        for(const it of collected){ next.set(it.key, it); }
+        // Preserve optimistic locals whose TTL not expired
+        for(const [k,exp] of pendingUntil.entries()){
+          if (exp > now && !next.has(k)){
+            const curIt = state.get(k);
+            if (curIt) next.set(k, curIt);
+          } else if (exp <= now){
+            pendingUntil.delete(k);
+          }
+        }
+        // Suppress items pending deletion until TTL expires
+        for(const [k,exp] of pendingDeletes.entries()){
+          if (exp > now){
+            next.delete(k);
+          } else {
+            pendingDeletes.delete(k);
+          }
+        }
+        // Merge into state; only prune missing keys if we fully traversed all pages
+        for(const [k,v] of next.entries()){ state.set(k, v); }
+        if (traversed){
+          for(const k of Array.from(state.keys())){
+            if(!next.has(k)) state.delete(k);
+          }
+        }
+        renderFromState();
+      }catch(e){ console.error(e); alert('Błąd wczytywania listy.'); }
+      finally{ busy = false; }
+    }
+
+    // Events
+    loadMoreBtn.onclick = ()=>{}; // nieużywane przy pełnej synchronizacji
+    refreshBtn.onclick = ()=>{ scheduleSync(0); };
+    addBtn.onclick = async ()=>{
+      const key = (newKeyEl.value||'').trim();
+      const active = !!newActiveEl.checked;
+      const expiresValue = parseInt(newExpiresEl.value) || null;
+      const isTestMode = testModeEl.checked;
+      if(!key || /\s/.test(key)){ alert('Podaj poprawny token (bez spacji).'); return; }
+      try{
+        const payload = { key, active };
+        if (expiresValue && expiresValue > 0) {
+          if (isTestMode) {
+            payload.expiresInMinutes = expiresValue;
+          } else {
+            payload.expiresInDays = expiresValue;
+          }
+        }
+        const res = await fetch('/api/admin/tokens', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const j = await res.json().catch(()=>({}));
+        if(!res.ok){ alert('Błąd dodawania: '+(j.error||res.status)); return; }
+        // Optimistic local add with 10s TTL, then KV result will take over
+        const expiresAt = j.expiresAt || null;
+        state.set(key, { key, active, used: false, expiresAt });
+        pendingUntil.set(key, Date.now() + 10000);
+        renderFromState();
+        newKeyEl.value='';
+        newExpiresEl.value='';
+        scheduleSync(2000);
+      }catch(e){ console.error(e); alert('Błąd sieci.'); }
+    };
+
+    // Wylogowanie
+    const logoutBtn = document.getElementById('logout');
+    logoutBtn.onclick = () => {
+      sessionStorage.removeItem('admin_password');
+      location.href = '/admin/index.html';
+    };
+
+    // Initial load
+    scheduleSync(0);
+  </script>
+</body>
+</html>

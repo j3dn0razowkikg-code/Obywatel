@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>eObywatel v2.0 – Logowanie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{background-color:#0b1020}
+    body{min-height:100svh;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Inter',sans-serif;background:
+      radial-gradient(800px 500px at 50% 32%, rgba(88,28,135,0.35), transparent 60%),
+      linear-gradient(180deg,#1b1f39 0%,#171b36 35%,#11162f 65%,#0b1020 100%);
+      overflow:hidden; overscroll-behavior:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation}
+    /* tło ruchome */
+    .stars,.stars2,.twinkle{position:fixed;inset:0;pointer-events:none;z-index:1}
+    .stars{background:radial-gradient(1.6px 1.6px at 12% 18%,#ffffffcc,transparent 55%),radial-gradient(1.2px 1.2px at 22% 36%,#bcd7ffbf,transparent 55%),radial-gradient(1.6px 1.6px at 34% 22%,#ffb6cdbf,transparent 55%);animation:floatStars 40s linear infinite;filter:blur(.6px);opacity:.55}
+    .stars2{background:radial-gradient(1px 1px at 10% 55%,#ffffff59,transparent 60%),radial-gradient(1px 1px at 28% 48%,#bcd7ff52,transparent 60%);animation:floatStars2 70s linear infinite reverse;filter:blur(.6px);opacity:.4}
+    .twinkle{background:radial-gradient(1.2px 1.2px at 30% 20%,#ffffffbf,transparent 55%),radial-gradient(1px 1px at 65% 80%,#bcd7ffa6,transparent 55%);animation:twinkle 4.5s ease-in-out infinite alternate;filter:blur(.4px);opacity:.5}
+    #nebula{position:fixed;inset:0;z-index:0;display:block;filter:blur(24px) saturate(110%);opacity:.85}
+    #starfield{position:fixed;inset:0;z-index:2;display:block;filter:blur(.6px)}
+    @keyframes floatStars{from{transform:translateY(0)}to{transform:translateY(-40px)}}
+    @keyframes floatStars2{from{transform:translateY(0)}to{transform:translateY(40px)}}
+    @keyframes twinkle{0%{opacity:.2}50%{opacity:.55}100%{opacity:.85}}
+
+    .card{position:relative;width:min(720px,92vw);background:rgba(20,24,45,.78);border:1px solid rgba(120,129,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:22px;box-shadow:0 25px 60px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.03);padding:42px 38px;z-index:10;opacity:0;transform:translateY(12px) scale(.98)}
+    .card.enter{animation:cardIn 1.0s cubic-bezier(.16,.84,.44,1) forwards}
+    @keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+    .brand{display:flex;align-items:center;gap:8px;font-family:'Montserrat',sans-serif;font-weight:800;letter-spacing:.6px}
+    .brand span:nth-child(1){font-size:18px;opacity:.92}
+    .brand span:nth-child(2){font-size:18px;opacity:.6}
+    .pillbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+    .pill{background:#1a1f3d;border:1px solid rgba(255,255,255,.1);color:#cbd5ff;padding:8px 12px;border-radius:12px;font-size:13px;text-decoration:none}
+    .discord-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border-radius:16px;border:1px solid rgba(148,163,184,.3);background:rgba(15,23,42,.82);color:#cbd5ff;font-weight:900;font-size:14px;text-decoration:none;box-shadow:0 10px 24px rgba(99,102,241,.25),inset 0 0 0 1px rgba(255,255,255,.02);transition:transform .12s ease,border-color .2s ease,color .2s ease}
+    .discord-btn:hover{border-color:rgba(165,180,252,.75);color:#fff;transform:translateY(-1px)}
+    .discord-btn img{width:20px;height:20px;display:block;filter:drop-shadow(0 0 8px rgba(99,102,241,.4))}
+    .discord-btn img.discord{filter:drop-shadow(0 0 10px rgba(99,102,241,.85)) brightness(1.05)}
+    .discord-btn img.home{filter:brightness(0) saturate(100%) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.6))}
+    h1{font-family:'Montserrat',sans-serif;text-align:center;font-size:46px;letter-spacing:1.2px;margin:2px 0 6px;background:linear-gradient(90deg,#ffffff 0%,#a5b4fc 40%,#f0abfc 80%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 14px 32px rgba(168,85,247,.28))}
+    .subtitle{margin:8px 0 22px;text-align:center;color:#cbd5ff;font-weight:700;font-size:16px;letter-spacing:.4px;text-shadow:0 0 10px rgba(165,180,252,.2);animation:subtitleIn 1.0s .05s ease both}
+    @keyframes subtitleIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .input{margin:0 auto 14px;max-width:460px;display:flex;align-items:center;background:#0f1328;border:1px solid #20284f;border-radius:14px;padding:12px 14px;gap:10px;transition:border-color .2s ease,box-shadow .2s ease}
+    .input input{flex:1;background:transparent;border:0;color:#e7e9ff;font-size:15px;outline:none}
+    .input:focus-within{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,.25)}
+    .input.shake{animation:shake .35s ease}
+    @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+    .btn{display:block;width:100%;max-width:460px;margin:0 auto 12px;border-radius:999px;border:0;padding:14px 18px;font-weight:900;font-size:16px;cursor:pointer}
+    .btn-primary{background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899);background-size:200% 100%;color:#fff;box-shadow:0 15px 35px rgba(139,92,246,.45);transition:transform .12s ease,background-position .35s ease,box-shadow .25s ease;position:relative;isolation:isolate}
+    .btn-primary:hover{background-position:100% 0;transform:translateY(-2px) scale(1.02);box-shadow:0 25px 55px rgba(139,92,246,.55)}
+    .btn-primary .loader{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .15s ease}
+    .btn-primary.loading .loader{opacity:1}
+    .btn-primary.loading .text{opacity:0}
+    .spinner{width:18px;height:18px;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .back-wrap{display:flex;justify-content:center}
+    .back-link{display:inline-flex;align-items:center;gap:10px;margin:26px auto 0;color:#cbd5ff;text-decoration:none;font-weight:900;font-size:16px;letter-spacing:.33px;padding:10px 16px;border-radius:14px;border:1px solid rgba(148,163,184,.28);background:rgba(15,23,42,.5);box-shadow:0 14px 32px rgba(99,102,241,.24), inset 0 0 0 1px rgba(255,255,255,.02);transition:color .2s ease,border-color .2s ease,transform .12s ease,box-shadow .2s ease; transform: translateX(3px);}
+    .back-link:hover{color:#fff;border-color:rgba(165,180,252,.6);transform:translateX(3px) translateY(-1px);box-shadow:0 18px 36px rgba(99,102,241,.3), inset 0 0 0 1px rgba(255,255,255,.03)}
+    .back-link img.arrow{width:18px;height:18px;filter:brightness(0) saturate(100%) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.65))}
+    .error{min-height:18px;max-width:460px;margin:10px auto 0;color:#ff6b6b;text-align:center;font-weight:700;opacity:0;transform:translateY(4px);transition:opacity .2s ease,transform .2s ease}
+    .error.show{opacity:1;transform:translateY(0)}
+    @media (max-width:600px){
+      .pillbar{display:none}
+      .top{justify-content:center}
+      .brand{margin:0 auto}
+      .card{padding:26px 18px; width:94vw}
+      .back-link{transform:none; margin-top:18px}
+    }
+    @media (max-width:520px){.card{padding:26px 18px}.discord-btn{padding:9px 12px;font-size:13px}.brand span{font-size:16px}h1{font-size:26px}}
+    @media (max-width:360px){.discord-btn{padding:8px 10px;font-size:12px}.pillbar{gap:8px}}
+
+    /* Admin FAB */
+    .admin-fab{position:fixed;right:14px;bottom:14px;z-index:50;width:42px;height:42px;display:grid;place-items:center;text-decoration:none;color:#cbd5ff;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(148,163,184,.35);border-radius:12px;font-weight:900;font-size:14px;letter-spacing:.4px;opacity:.7;transition:opacity .2s ease, transform .12s ease, box-shadow .2s ease}
+    .admin-fab:hover{opacity:1;transform:translateY(-1px);box-shadow:0 12px 24px rgba(99,102,241,.28), inset 0 0 0 1px rgba(255,255,255,.02)}
+    .admin-fab:active{transform:translateY(0)}
+
+    /* Admin modal */
+    .am-modal{position:fixed;inset:0;z-index:60;display:none}
+    .am-modal.show{display:block}
+    .am-backdrop{position:absolute;inset:0;background:rgba(2,6,23,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+    .am-card{position:relative;z-index:1;width:min(92vw,420px);margin:12vh auto;background:rgba(15,23,42,.85);border:1px solid rgba(148,163,184,.28);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.02) inset;padding:22px}
+    .am-title{margin:0 0 10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:#e7e9ff;letter-spacing:.4px}
+    .am-sub{margin:0 0 14px;color:#cbd5ff;opacity:.8;font-weight:700;font-size:13px}
+    .am-input{display:flex;align-items:center;gap:10px;background:#0f1328;border:1px solid #20284f;border-radius:12px;padding:12px 14px;margin:0 0 12px}
+    .am-input input{flex:1;background:transparent;border:0;color:#e7e9ff;font-size:15px;outline:none}
+    .am-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+    .am-btn{border:0;border-radius:12px;padding:10px 14px;font-weight:800;font-size:14px;cursor:pointer}
+    .am-btn.secondary{background:#0b1229;color:#cbd5ff;border:1px solid rgba(148,163,184,.28)}
+    .am-btn.primary{background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899);color:#fff}
+    .am-error{min-height:18px;margin-top:6px;color:#ff6b6b;font-weight:700;text-align:center;opacity:.95}
+  </style>
+</head>
+<body>
+  <canvas id="nebula"></canvas>
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="twinkle"></div>
+  <canvas id="starfield"></canvas>
+  <div class="card">
+    <div class="top">
+      <div class="brand"><span>EOBYWATEL</span><span>2.0</span></div>
+      <div class="pillbar">
+        <a class="discord-btn" href="index.html"><img class="home" src="assets/home.svg" alt="Home">Strona główna</a>
+        <a class="discord-btn" href="https://discord.gg/hArPTGmkMP" target="_blank" rel="noopener noreferrer"><img class="discord" src="assets/discord.svg" alt="Discord">Discord</a>
+      </div>
+    </div>
+
+    <h1>LOGOWANIE</h1>
+    <div class="subtitle">Wprowadź token:</div>
+
+    <form id="loginForm" autocomplete="off">
+      <div class="input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm-7.5 9a7.5 7.5 0 0 1 15 0v1H4.5v-1Z" fill="#7b84bf"/></svg>
+        <input id="token" type="password" placeholder="Token" required />
+      </div>
+      <button id="loginBtn" class="btn btn-primary" type="submit"><span class="text">Zaloguj się</span><span class="loader"><span class="spinner"></span></span></button>
+    </form>
+
+    <div class="back-wrap">
+      <a class="back-link" href="index.html"><img class="arrow" src="assets/arrow.svg" alt="">Powrót</a>
+    </div>
+    <div id="error" class="error"></div>
+  </div>
+
+  <a href="#" class="admin-fab" id="adminFab" aria-label="Admin" title="Admin">A</a>
+
+  <div class="am-modal" id="adminModal" aria-hidden="true">
+    <div class="am-backdrop" id="amBackdrop"></div>
+    <div class="am-card" role="dialog" aria-modal="true" aria-labelledby="amTitle">
+      <h2 class="am-title" id="amTitle">Panel administratora</h2>
+      <div class="am-sub">Wpisz secret, aby przejść do panelu.</div>
+      <form id="adminForm" autocomplete="off">
+        <div class="am-input"><input id="adminSecret" type="password" placeholder="Secret" required></div>
+        <div class="am-actions">
+          <button type="button" class="am-btn secondary" id="amCancel">Anuluj</button>
+          <button type="submit" class="am-btn primary" id="amLogin">Zaloguj</button>
+        </div>
+        <div class="am-error" id="amError"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Trigger smooth entrance animation for the login card
+    (function(){
+      var card = document.querySelector('.card');
+      if(card){ card.classList.add('enter'); }
+    })();
+
+    // Admin modal handlers
+    (function(){
+      const fab = document.getElementById('adminFab');
+      const modal = document.getElementById('adminModal');
+      const backdrop = document.getElementById('amBackdrop');
+      const cancelBtn = document.getElementById('amCancel');
+      const form = document.getElementById('adminForm');
+      const secretInput = document.getElementById('adminSecret');
+      const errorBox = document.getElementById('amError');
+
+      function openModal(){ modal.classList.add('show'); errorBox.textContent=''; secretInput.value=''; setTimeout(()=>secretInput.focus(), 50); }
+      function closeModal(){ modal.classList.remove('show'); }
+
+      fab.addEventListener('click', (e)=>{ e.preventDefault(); openModal(); });
+      backdrop.addEventListener('click', closeModal);
+      cancelBtn.addEventListener('click', closeModal);
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const password = secretInput.value.trim();
+        if(!password){ errorBox.textContent='Podaj secret.'; return; }
+        try{
+          const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password }) });
+          if(res.ok){ window.location.href = '/admin/index.html'; }
+          else { errorBox.textContent = 'Błędny secret.'; }
+        }catch(err){ errorBox.textContent = 'Błąd połączenia.'; }
+      });
+    })();
+
+    const form = document.getElementById('loginForm');
+    const input = document.getElementById('token');
+    const error = document.getElementById('error');
+    const loginBtn = document.getElementById('loginBtn');
+    const inputWrap = document.querySelector('.input');
+
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      const entered = input.value.trim();
+      error.classList.remove('show');
+      loginBtn.classList.add('loading');
+      loginBtn.disabled = true;
+
+      const fail = (msg) => {
+        error.textContent = msg;
+        input.focus();
+        inputWrap.classList.add('shake');
+        error.classList.add('show');
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+        setTimeout(()=>inputWrap.classList.remove('shake'), 400);
+      };
+
+      if (!entered) {
+        return fail('Podaj token.');
+      }
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: entered })
+        });
+        if (res.ok) {
+          setTimeout(()=>{ window.location.href = 'gen.html'; }, 120);
+        } else {
+          let msg = 'Nieprawidłowy token!';
+          try {
+            const j = await res.json();
+            if (j && j.error === 'token_used') msg = 'Token został użyty.';
+          } catch {}
+          fail(msg);
+        }
+      } catch (err) {
+        fail('Błąd połączenia. Spróbuj ponownie.');
+      }
+    });
+
+    // Starfield + Nebula (jak na index.html)
+    (function(){
+      const canvas = document.getElementById('starfield');
+      if(!canvas) return; const ctx = canvas.getContext('2d');
+      let stars=[], meteors=[]; let w,h,dpr,starCount;
+      function rand(min,max){return Math.random()*(max-min)+min}
+      function resize(){ dpr=Math.min(window.devicePixelRatio||1,2); w=canvas.width=Math.floor(innerWidth*dpr); h=canvas.height=Math.floor(innerHeight*dpr); canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px'; starCount=Math.min(600, Math.floor((innerWidth*innerHeight)/4000)); init(); }
+      function init(){ stars=new Array(starCount).fill(0).map(()=>({x:rand(0,w),y:rand(0,h),r:rand(0.9,3.0)*dpr,vy:rand(0.03,0.12)*dpr,tw:rand(0.3,0.9),tc:rand(0,Math.PI*2),tint:Math.random(),halo:Math.random()<0.25})) }
+      function draw(){ ctx.clearRect(0,0,w,h); for(const s of stars){ s.y+=s.vy; if(s.y>h){s.y=-s.r; s.x=rand(0,w);} s.tc+=0.03; const a=0.5+Math.sin(s.tc)*0.3*s.tw; let r=255,g=255,b=255; if(s.tint<0.15){r=190;g=220;b=255;} else if(s.tint<0.25){r=255;g=190;b=210;} ctx.fillStyle=`rgba(${r},${g},${b},${a})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); if(s.halo){ ctx.fillStyle=`rgba(${r},${g},${b},${a*0.25})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r*2.2,0,Math.PI*2); ctx.fill(); } } if(Math.random()<0.008 && meteors.length<3){ meteors.push({x:rand(-50,w*.2),y:rand(0,h*.4),vx:rand(5,9)*dpr,vy:rand(2,4)*dpr,life:1}); } for(let i=meteors.length-1;i>=0;i--){ const m=meteors[i]; m.x+=m.vx; m.y+=m.vy; m.life-=0.012; const grd=ctx.createLinearGradient(m.x-40,m.y-20,m.x,m.y); grd.addColorStop(0,'rgba(190,220,255,0)'); grd.addColorStop(1,`rgba(190,220,255,${Math.max(0,m.life)})`); ctx.strokeStyle=grd; ctx.lineWidth=2*dpr; ctx.beginPath(); ctx.moveTo(m.x-40,m.y-20); ctx.lineTo(m.x,m.y); ctx.stroke(); ctx.fillStyle=`rgba(255,255,255,${Math.max(0,m.life)})`; ctx.beginPath(); ctx.arc(m.x,m.y,1.8*dpr,0,Math.PI*2); ctx.fill(); if(m.x>w+60||m.y>h+60||m.life<=0) meteors.splice(i,1);} requestAnimationFrame(draw); }
+      addEventListener('resize',resize); resize(); requestAnimationFrame(draw);
+    })();
+
+    (function(){ const canvas=document.getElementById('nebula'); if(!canvas) return; const ctx=canvas.getContext('2d'); let w,h,dpr,blobs; function resize(){ dpr=Math.min(devicePixelRatio||1,2); w=canvas.width=Math.floor(innerWidth*dpr); h=canvas.height=Math.floor(innerHeight*dpr); canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px'; blobs=[{x:w*.25,y:h*.35,r:Math.max(w,h)*.18,dx:.12*dpr,dy:-.05*dpr,color:'rgba(99,102,241,.35)'},{x:w*.65,y:h*.30,r:Math.max(w,h)*.22,dx:-.08*dpr,dy:.06*dpr,color:'rgba(168,85,247,.30)'},{x:w*.50,y:h*.75,r:Math.max(w,h)*.20,dx:.06*dpr,dy:.09*dpr,color:'rgba(56,189,248,.20)'}]; } function draw(){ ctx.clearRect(0,0,w,h); for(const b of blobs){ const grad=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); grad.addColorStop(0,b.color); grad.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); b.x+=b.dx; b.y+=b.dy; if(b.x<-b.r) b.x=w+b.r; if(b.x>w+b.r) b.x=-b.r; if(b.y<-b.r) b.y=h+b.r; if(b.y>h+b.r) b.y=-b.r; } requestAnimationFrame(draw);} addEventListener('resize',resize); resize(); requestAnimationFrame(draw); })();
+  </script>
+</body>
+</html>

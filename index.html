@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>eObywatel v2.0 - Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:,">
+    <style>
+        /* Reset podstawowy i box-sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* GŁÓWNE STYLISTYKI BODY - Czyste, ciemne tło jak na załączniku */
+        html, body { background-color: #0b1020; }
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100svh;
+            background:
+              radial-gradient(1200px 600px at 10% -20%, rgba(124,58,237,0.25), transparent 60%),
+              radial-gradient(900px 500px at 110% 20%, rgba(59,130,246,0.20), transparent 60%),
+              radial-gradient(1000px 600px at 50% 110%, rgba(16,185,129,0.12), transparent 60%),
+              #0b0f1a;
+            color: #ffffff;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Gwiazdki w tle */
+        .stars {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+            background:
+              radial-gradient(1.6px 1.6px at 12% 18%, rgba(255,255,255,.8), transparent 55%),
+              radial-gradient(1.2px 1.2px at 22% 36%, rgba(188,215,255,.75), transparent 55%),
+              radial-gradient(1.6px 1.6px at 34% 22%, rgba(255,182,193,.8), transparent 55%),
+              radial-gradient(1.2px 1.2px at 46% 30%, rgba(255,255,255,.7), transparent 55%),
+              radial-gradient(1.4px 1.4px at 58% 12%, rgba(188,215,255,.8), transparent 55%),
+              radial-gradient(1px 1px at 68% 26%, rgba(255,255,255,.65), transparent 55%),
+              radial-gradient(1.4px 1.4px at 78% 18%, rgba(255,182,193,.75), transparent 55%),
+              radial-gradient(1px 1px at 88% 34%, rgba(255,255,255,.6), transparent 55%),
+              radial-gradient(1.2px 1.2px at 16% 68%, rgba(255,255,255,.7), transparent 55%),
+              radial-gradient(1px 1px at 36% 76%, rgba(188,215,255,.7), transparent 55%),
+              radial-gradient(1.2px 1.2px at 52% 82%, rgba(255,182,193,.7), transparent 55%),
+              radial-gradient(1px 1px at 72% 74%, rgba(255,255,255,.6), transparent 55%),
+              radial-gradient(1.6px 1.6px at 86% 82%, rgba(255,255,255,.75), transparent 55%);
+            animation: floatStars 40s linear infinite;
+            opacity: .55;
+            filter: blur(.6px);
+        }
+
+        /* Druga warstwa gwiazdek (parallax) */
+        .stars2 {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+            background:
+              radial-gradient(1px 1px at 10% 55%, rgba(255,255,255,.35), transparent 60%),
+              radial-gradient(1px 1px at 28% 48%, rgba(188,215,255,.32), transparent 60%),
+              radial-gradient(1px 1px at 42% 66%, rgba(255,182,193,.32), transparent 60%),
+              radial-gradient(1px 1px at 64% 58%, rgba(255,255,255,.3), transparent 60%),
+              radial-gradient(1px 1px at 82% 46%, rgba(188,215,255,.3), transparent 60%),
+              radial-gradient(1px 1px at 90% 72%, rgba(255,255,255,.28), transparent 60%);
+            animation: floatStars2 70s linear infinite reverse;
+            opacity: .4;
+            filter: blur(.6px);
+        }
+
+        /* Migotanie gwiazdek */
+        .twinkle {
+            position: fixed; inset: 0; pointer-events: none; z-index: 3;
+            background:
+              radial-gradient(1.2px 1.2px at 30% 20%, rgba(255,255,255,.75), transparent 55%),
+              radial-gradient(1px 1px at 65% 80%, rgba(188,215,255,.65), transparent 55%),
+              radial-gradient(1px 1px at 45% 55%, rgba(255,182,193,.6), transparent 55%);
+            animation: twinkle 4.5s ease-in-out infinite alternate;
+            opacity: .5;
+            filter: blur(.4px);
+        }
+
+        @keyframes floatStars { from { transform: translateY(0); } to { transform: translateY(-40px); } }
+        @keyframes fadeUp { from { opacity:0; transform: translateY(12px) scale(.98); } to { opacity:1; transform: translateY(0) scale(1); } }
+        @keyframes shine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes floatStars2 { from { transform: translateY(0); } to { transform: translateY(40px); } }
+        @keyframes twinkle { 0% {opacity:.2} 50% {opacity:.55} 100% {opacity:.85} }
+
+        /* Płynne i wydajne gwiazdki na canvasie */
+        #starfield { position: fixed; inset: 0; pointer-events: none; z-index: 2; display:block; filter: blur(.6px); }
+        #nebula { position: fixed; inset: 0; pointer-events: none; z-index: 0; display:block; filter: blur(24px) saturate(110%); opacity:.85 }
+
+        /* KONTENER GŁÓWNY - Minimalistyczny, ciemny box z MOCNO ZAOKRĄGLONYMI RAMKAMI */
+        .container {
+            text-align: center;
+            padding: 64px 72px;
+            border-radius: 24px; /* **MOCNO ZAOKRĄGLONE RAMKI** */
+            background: rgba(17, 24, 39, 0.65); /* Ciemne tło kontenera */
+            border: 1px solid rgba(148,163,184,0.18); /* Ciemna, subtelna ramka */
+            position: relative;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.03); /* Cień */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            max-width: 1120px;
+            width: 94%;
+            min-height: 370px;
+            z-index: 10; /* gwarantuje, że tło i gwiazdki są pod ramką */
+            animation: fadeUp 0.9s cubic-bezier(.16,.84,.44,1) both;
+        }
+
+        /* TYTUŁ GŁÓWNY Z GLOW (1:1 jak z załącznika, ale z glow) */
+        .header-section {
+            display: flex;
+            justify-content: center; /* Centrowanie tytułu */
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .main-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 72px; /* Rozmiar z załącznika */
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #fff 0%, #a5b4fc 35%, #f0abfc 70%, #ffffff 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            filter: drop-shadow(0 10px 35px rgba(168,85,247,0.25));
+            animation: fadeUp 1.0s .1s ease both;
+        }
+        
+        /* WERSJA V2.0 (Statycznie, jak w załączniku) */
+        .version-tag {
+            font-family: 'Inter', sans-serif;
+            font-size: 18px; /* Rozmiar z załącznika */
+            font-weight: 700;
+            color: #a5b4fc;
+            opacity: 1;
+            margin-left: 16px;
+            margin-top: 14px; /* Delikatne przesunięcie w dół, aby pasowało do v2.0 w załączniku */
+            padding: 4px 10px; border: 1px solid rgba(165,180,252,0.35); border-radius: 999px; background: rgba(30,41,59,0.6);
+        }
+
+        /* PODTYTUŁ */
+        h2 {
+            display: none;
+        }
+        
+        /* WRAPPER FORMULARZA */
+        .form-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Mniejszy odstęp jak w załączniku */
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* INPUT - MOCNO ZAOKRĄGLONE RAMKI */
+        input {
+            flex-grow: 1;
+            max-width: 300px;
+            padding: 12px 15px; /* Mniejszy padding jak w załączniku */
+            border-radius: 10px; /* **MOCNO ZAOKRĄGLONE RAMKI** */
+            border: 1px solid #333333; /* Ciemna ramka */
+            background-color: #2a2a2a; /* Ciemne tło inputu */
+            color: #ffffff;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            outline: none;
+        }
+        
+        input::placeholder {
+            color: #aaaaaa;
+        }
+        
+        input:focus {
+            border-color: #ffffff; /* Biała ramka na focus */
+        }
+        
+        /* PRZYCISK WERYFIKACJI - MOCNO ZAOKRĄGLONE RAMKI */
+        button {
+            padding: 16px 34px;
+            border-radius: 999px; /* **MOCNO ZAOKRĄGLONE RAMKI** */
+            border: 0;
+            background: linear-gradient(90deg,#3b82f6, #8b5cf6, #ec4899);
+            background-size: 200% 100%;
+            color: #ffffff;
+            font-size: 19px;
+            font-weight: 900;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: .8px;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.25s ease, background-position 0.35s ease;
+            outline: none;
+            flex-shrink: 0;
+            box-shadow: 0 22px 60px rgba(139,92,246,0.45);
+            animation: fadeUp 1.1s .2s ease both, shine 7s linear infinite;
+        }
+        
+        button:hover {
+            background-position: 100% 0;
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 25px 55px rgba(139,92,246,0.55);
+        }
+        
+        /* DODATKOWA STYLIZACJA DLA PRZYCISKU CTA NA LANDINGU */
+        .cta {
+            margin-top: 8px;
+        }
+        .cta button{position:relative; isolation:isolate}
+        .cta button::after{content:""; position:absolute; inset:-8px; border-radius:inherit; background: radial-gradient(60% 60% at 50% 30%, rgba(168,85,247,.45), transparent 60%); filter: blur(16px); z-index:-1; opacity:.9; transition: opacity .25s ease, transform .25s ease}
+        .cta button:hover::after{opacity:1; transform: scale(1.03)}
+        .top-actions { position: absolute; top: 18px; right: 18px; }
+        .discord-btn { display:inline-flex; align-items:center; gap:10px; padding:14px 20px; border-radius:16px; border:1px solid rgba(148,163,184,0.32); background: rgba(15,23,42,0.82); color:#cbd5ff; font-weight:900; font-size:16px; text-decoration:none; box-shadow: 0 10px 24px rgba(99,102,241,.25), inset 0 0 0 1px rgba(255,255,255,0.02); transition: transform .12s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease; }
+        .discord-btn:hover { border-color: rgba(165,180,252,0.75); color:#ffffff; transform: translateY(-1.5px); box-shadow: 0 16px 36px rgba(99,102,241,.32), inset 0 0 0 1px rgba(255,255,255,0.03); }
+        .discord-btn img { width:22px; height:22px; display:block; filter: drop-shadow(0 0 8px rgba(99,102,241,.4)); }
+
+        /* Karta kroków ZAKUP */
+        .steps-card { 
+            position:absolute; left:13px; top:176px; z-index:2;
+            display:inline-block; text-align:left; padding:18px 20px; 
+            background: rgba(13,18,32,0.75); border:1px solid rgba(148,163,184,.18); border-radius:16px; 
+            box-shadow: 0 10px 32px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.02);
+            animation: fadeUp 1.1s .12s ease both;
+            width: 256px;
+        }
+        .steps-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:12px; letter-spacing:1.8px; color:#cbd5ff; opacity:.9; margin-bottom:10px; }
+        .steps-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:12px; letter-spacing:2.2px; color:#cbd5ff; opacity:.9; margin-bottom:10px; }
+        .steps-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
+        .step { display:flex; align-items:center; gap:12px; color:#e5e7eb; font-weight:700; line-height:1.45; }
+        .badge { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:13px; 
+                 background: radial-gradient(circle at 30% 30%, #f0abfc, #8b5cf6); color:#0b0f1a; box-shadow:0 0 0 2px rgba(255,255,255,.2) inset, 0 6px 18px rgba(139,92,246,.45); transition: transform .12s ease, box-shadow .2s ease; }
+        .badge:hover{ transform: translateY(-1px) scale(1.06); box-shadow:0 0 0 2px rgba(255,255,255,.25) inset, 0 10px 26px rgba(139,92,246,.55) }
+        .step a { color:#ffffff; text-decoration:none; border-bottom:1px dotted rgba(255,255,255,.35); }
+        .step a:hover { color:#a5b4fc; border-bottom-color:transparent; }
+        
+        /* WIADOMOŚĆ O BŁĘDZIE - Ustawiona jak na załączniku */
+        #errorMessage {
+            color: #ff3333; /* Mocna czerwień */
+            height: 20px;
+            font-weight: 600;
+            margin-top: 15px;
+            font-size: 14px;
+            text-shadow: 0 0 5px rgba(255, 51, 51, 0.4); /* Lekkie glow dla błędu */
+        }
+        
+        /* LINK DISCORD (dokładnie jak w załączniku) */
+        .discord-link { display: none; }
+
+        /* CREDIT Z MOCNYM BIAŁYM GLOW I MNIEJSZY (jak w załączniku) */
+        .credit {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            font-size: 12px; /* Mniejszy, jak w załączniku */
+            color: #ffffff; 
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            /* MOCNE BIAŁE GLOW DLA CREDIT */
+            text-shadow: 
+                0 0 5px rgba(255, 255, 255, 0.7),
+                0 0 10px rgba(255, 255, 255, 0.4);
+            transition: text-shadow 0.3s ease;
+        }
+
+        /* RESPONSIVE DESIGN (Dostosowanie do estetyki 1:1) */
+        /* Dodatkowe breakpointy dla idealnego ułożenia panelu ZAKUP */
+        @media (max-width: 1200px) {
+            .steps-card { left: 18px; top: 170px; }
+        }
+
+        @media (max-width: 900px) {
+            .container { padding: 48px 28px; }
+            .steps-card { position: static; width: 92%; margin: 12px auto; left:auto; top:auto; }
+            .steps-title { letter-spacing: 2px; }
+            .top-actions { position: static; margin-bottom: 8px; display:flex; justify-content:center; }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 36px 22px;
+                border-radius: 15px; /* Zaokrąglenie responsywne */
+            }
+            .header-section { justify-content: center; align-items: center; }
+            .version-tag { position: relative; top: -6px; margin-left: 10px; }
+            .steps-card { position: static; width: 92%; margin: 10px auto 8px; padding: 10px 12px; }
+            .steps-list .step { margin-bottom: 8px; }
+            .main-title {
+                font-size: 36px;
+            }
+            .version-tag {
+                font-size: 16px;
+            }
+            h2 { font-size: 15px; margin-bottom: 20px; }
+            .form-wrapper { flex-direction: column; gap: 10px; }
+            input, button {
+                width: 100%; 
+                max-width: none;
+                font-size: 14px;
+                border-radius: 8px; /* Zaokrąglenie responsywne */
+            }
+            .cta { margin-top: 24px; display:flex; justify-content:center; }
+            .cta button { font-size: 18px; padding: 14px 18px; width: 100%; max-width: 420px; }
+            .discord-btn { font-size: 13px; padding: 9px 12px; }
+            .credit {
+                font-size: 10px;
+                position: static;
+                display: block;
+                text-align: center;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .main-title { font-size: 32px; }
+            .steps-card { border-radius: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="nebula"></canvas>
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="twinkle"></div>
+    <canvas id="starfield"></canvas>
+    <div class="container">
+        <div class="top-actions"><a class="discord-btn" href="https://discord.gg/hArPTGmkMP" target="_blank" rel="noopener noreferrer"><img src="assets/discord.svg" alt="Discord">Discord</a></div>
+        <div class="header-section">
+            <h1 class="main-title">EOBYWATEL</h1>
+            <span class="version-tag">V2.0</span>
+        </div>
+        
+        <div class="steps-card">
+            <div class="steps-title">ZAKUP</div>
+            <ul class="steps-list">
+                <li class="step"><span class="badge">1</span><a href="https://discord.gg/hArPTGmkMP" target="_blank" rel="noopener noreferrer">Dołącz na discorda</a></li>
+                <li class="step"><span class="badge">2</span>Zweryfikuj się</li>
+                <li class="step"><span class="badge">3</span>Otwórz ticketa</li>
+            </ul>
+        </div>
+
+        <div class="cta">
+            <a href="login.html"><button type="button">Zaloguj się</button></a>
+        </div>
+
+
+        <div class="credit">by Rex</div>
+    </div>
+
+    <script>
+        // Starfield (wydajna animacja na canvasie)
+        (function(){
+          const canvas = document.getElementById('starfield');
+          if(!canvas) return;
+          const ctx = canvas.getContext('2d');
+          let stars = [], meteors = [];
+          let w, h, dpr, starCount;
+
+          function rand(min, max){ return Math.random() * (max - min) + min; }
+
+          function resize(){
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            w = canvas.width = Math.floor(window.innerWidth * dpr);
+            h = canvas.height = Math.floor(window.innerHeight * dpr);
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+            // ilość gwiazd zależna od rozmiaru (więcej, ale z limitem dla płynności)
+            starCount = Math.min(600, Math.floor((window.innerWidth * window.innerHeight) / 4000));
+            initStars();
+          }
+
+          function initStars(){
+            stars = new Array(starCount).fill(0).map(()=>({
+              x: rand(0, w),
+              y: rand(0, h),
+              r: rand(0.9, 3.0) * dpr, // większe gwiazdki
+              vy: rand(0.03, 0.12) * dpr, // bardziej widoczny ruch, nadal płynny
+              tw: rand(0.3, 0.9), // siła migotania
+              tc: rand(0, Math.PI*2), // faza
+              tint: Math.random(),
+              halo: Math.random() < 0.25 // co czwarta ma delikatny halo
+            }));
+          }
+
+          function draw(){
+            ctx.clearRect(0,0,w,h);
+            // lekka warstwa "poświaty" tła (daje głębię bez kosztu)
+            // rysowanie gwiazd
+            for(const s of stars){
+              s.y += s.vy; if(s.y > h) { s.y = -s.r; s.x = rand(0, w); }
+              s.tc += 0.03; // tempo migotania ciut szybsze
+              const alpha = 0.5 + Math.sin(s.tc) * 0.3 * s.tw; // większy zakres migotania
+              // kolor: większość białe, część lekko niebieskie/różowe
+              let r=255,g=255,b=255;
+              if(s.tint < 0.15){ r=190; g=220; b=255; }
+              else if(s.tint < 0.25){ r=255; g=190; b=210; }
+              ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+              ctx.beginPath();
+              ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+              ctx.fill();
+              if(s.halo){
+                ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.25})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r * 2.2, 0, Math.PI*2);
+                ctx.fill();
+              }
+            }
+            // sporadyczne spadające gwiazdy
+            if(Math.random() < 0.008 && meteors.length < 3){
+              meteors.push({ x: rand(-50, w*0.2), y: rand(0, h*0.4), vx: rand(5,9)*dpr, vy: rand(2,4)*dpr, life: 1.0 });
+            }
+            for(let i=meteors.length-1;i>=0;i--){
+              const m = meteors[i];
+              m.x += m.vx; m.y += m.vy; m.life -= 0.012;
+              const grd = ctx.createLinearGradient(m.x-40, m.y-20, m.x, m.y);
+              grd.addColorStop(0, `rgba(190,220,255,0)`);
+              grd.addColorStop(1, `rgba(190,220,255,${Math.max(0,m.life)})`);
+              ctx.strokeStyle = grd; ctx.lineWidth = 2*dpr; ctx.beginPath(); ctx.moveTo(m.x-40, m.y-20); ctx.lineTo(m.x, m.y); ctx.stroke();
+              ctx.fillStyle = `rgba(255,255,255,${Math.max(0,m.life)})`; ctx.beginPath(); ctx.arc(m.x, m.y, 1.8*dpr, 0, Math.PI*2); ctx.fill();
+              if(m.x > w+60 || m.y > h+60 || m.life <= 0) meteors.splice(i,1);
+            }
+            requestAnimationFrame(draw);
+          }
+
+          window.addEventListener('resize', resize);
+          resize();
+          requestAnimationFrame(draw);
+        })();
+
+        // Nebula (miękkie, zblurowane gradienty w tle)
+        (function(){
+          const canvas = document.getElementById('nebula');
+          if(!canvas) return;
+          const ctx = canvas.getContext('2d');
+          let w,h,dpr, blobs;
+          function resize(){
+            dpr = Math.min(window.devicePixelRatio||1,2);
+            w = canvas.width = Math.floor(window.innerWidth * dpr);
+            h = canvas.height = Math.floor(window.innerHeight * dpr);
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+            // kilka dużych plam
+            blobs = [
+              {x: w*0.25, y: h*0.35, r: Math.max(w,h)*0.18, dx: 0.12*dpr, dy: -0.05*dpr, color: 'rgba(99,102,241,0.35)'},
+              {x: w*0.65, y: h*0.30, r: Math.max(w,h)*0.22, dx: -0.08*dpr, dy: 0.06*dpr, color: 'rgba(168,85,247,0.30)'},
+              {x: w*0.50, y: h*0.75, r: Math.max(w,h)*0.20, dx: 0.06*dpr, dy: 0.09*dpr, color: 'rgba(56,189,248,0.20)'}
+            ];
+          }
+          function draw(){
+            ctx.clearRect(0,0,w,h);
+            for(const b of blobs){
+              const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+              grad.addColorStop(0, b.color);
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.fillStyle = grad;
+              ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
+              b.x += b.dx; b.y += b.dy;
+              if(b.x < -b.r) b.x = w + b.r; if(b.x > w + b.r) b.x = -b.r;
+              if(b.y < -b.r) b.y = h + b.r; if(b.y > h + b.r) b.y = -b.r;
+            }
+            requestAnimationFrame(draw);
+          }
+          window.addEventListener('resize', resize);
+          resize();
+          requestAnimationFrame(draw);
+        })();
+    </script>
+
+</body>
+</html>
