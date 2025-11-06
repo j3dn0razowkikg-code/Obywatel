@@ -12,27 +12,11 @@ export const onRequest = async ({ request, next, env }) => {
 
   // ADMIN routes guard
   if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
+    // Allow admin login endpoint and admin landing without cookie
     const m = request.method.toUpperCase();
     const isAdminLogin = path === '/api/admin/login' && m === 'POST';
     const isAdminLanding = path === '/admin/index.html' && m === 'GET';
-    
-    // Jeśli to strona logowania, sprawdź czy użytkownik już jest zalogowany
-    if (isAdminLanding) {
-      const cookiesAdmin = Object.fromEntries((request.headers.get('Cookie') || '')
-        .split(';').map(c=>c.trim().split('=').map(decodeURIComponent)).filter(([k])=>k));
-      const adminSid = cookiesAdmin.admin_sid;
-      if (adminSid) {
-        const adminKey = `admin:${adminSid}`;
-        const adminSession = await env.SESSIONS.get(adminKey, { type: 'json' });
-        if (adminSession) {
-          // Użytkownik już zalogowany - przekieruj do dashboardu
-          return Response.redirect(new URL('/admin/dashboard.html', url), 302);
-        }
-      }
-      return next();
-    }
-    
-    if (!isAdminLogin) {
+    if (!isAdminLogin && !isAdminLanding) {
       const cookiesAdmin = Object.fromEntries((request.headers.get('Cookie') || '')
         .split(';').map(c=>c.trim().split('=').map(decodeURIComponent)).filter(([k])=>k));
       const adminSid = cookiesAdmin.admin_sid;
@@ -43,24 +27,6 @@ export const onRequest = async ({ request, next, env }) => {
         }
         return Response.redirect(new URL('/admin/index.html', url), 302);
       }
-      
-      // Waliduj sesję admina w KV
-      const adminKey = `admin:${adminSid}`;
-      const adminSession = await env.SESSIONS.get(adminKey, { type: 'json' });
-      if (!adminSession) {
-        // Sesja nie istnieje lub wygasła - usuń ciasteczko i przekieruj
-        const headers = new Headers();
-        headers.append('Set-Cookie', 'admin_sid=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0');
-        if (path.startsWith('/api/')) {
-          return new Response(JSON.stringify({ error: 'admin_session_expired' }), { status: 401, headers });
-        }
-        headers.set('Location', '/admin/index.html');
-        return new Response(null, { status: 302, headers });
-      }
-      
-      // Odśwież lastSeen
-      adminSession.lastSeen = Date.now();
-      await env.SESSIONS.put(adminKey, JSON.stringify(adminSession), { expirationTtl: 86400 });
     }
     return next();
   }
@@ -82,22 +48,13 @@ export const onRequest = async ({ request, next, env }) => {
   );
   const sid = cookies.sid;
   if (!sid) {
-    return Response.redirect(new URL('/login.html', url), 302);
+    return Response.redirect(new URL('/index.html', url), 302);
   }
 
   const key = `sess:${sid}`;
   const sess = await env.SESSIONS.get(key, { type: 'json' });
   if (!sess) {
-    return Response.redirect(new URL('/login.html', url), 302);
-  }
-
-  // Check if token has expired
-  if (sess.expiresAt && Date.now() > sess.expiresAt) {
-    // Token expired - delete session and redirect to index
-    await env.SESSIONS.delete(key);
-    const headers = new Headers({ 'Location': '/index.html' });
-    headers.append('Set-Cookie', 'sid=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0');
-    return new Response(null, { status: 302, headers });
+    return Response.redirect(new URL('/index.html', url), 302);
   }
 
   // Sliding session: update lastSeen and refresh cookie

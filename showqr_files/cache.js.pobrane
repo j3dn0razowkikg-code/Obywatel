@@ -15,7 +15,7 @@ window.onload = async () => {
         files.push('/' + file);
     })
 
-    const cacheName = 'eobywatel';
+    const cacheName = 'fobywatel';
 
     const cache = await caches.open(cacheName);
     await cache.addAll(files)

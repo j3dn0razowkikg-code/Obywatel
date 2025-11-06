@@ -20,14 +20,7 @@ export const onRequestPost = async ({ request, env }) => {
 
     // Utwórz sesję bez TTL (permanentna, odświeżana ciasteczkiem)
     const sid = crypto.randomUUID();
-    const now = Date.now();
-    const session = { token, createdAt: now, lastSeen: now };
-    
-    // Jeśli token ma czas wygaśnięcia, oblicz go od momentu aktywacji
-    if (tok.expiresInMs) {
-      session.expiresAt = now + tok.expiresInMs;
-    }
-    
+    const session = { token, createdAt: Date.now(), lastSeen: Date.now() };
     await env.SESSIONS.put(`sess:${sid}`, JSON.stringify(session));
 
     const headers = new Headers({ 'Content-Type': 'application/json' });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Admin · eObywatel</title>
+  <title>Admin · sObywatel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
@@ -26,47 +26,24 @@
     .primary:hover{transform:translateY(-1px);box-shadow:0 22px 50px rgba(139,92,246,.55)}
     .ghost{color:#cbd5ff;background:rgba(15,23,42,.6);border:1px solid rgba(148,163,184,.3)}
     .note{margin-top:14px;color:#cbd5ff90;font-size:13px}
-    input{width:100%;padding:14px;border:1px solid rgba(148,163,184,.3);border-radius:12px;background:rgba(15,23,42,.6);color:#e7e9ff;font-size:15px;margin-bottom:16px;box-sizing:border-box}
-    input:focus{outline:none;border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.2)}
-    .error{color:#ff6b6b;font-size:13px;margin-top:8px;display:none}
   </style>
 </head>
 <body>
   <div class="bg"><canvas id="nebula"></canvas><div class="stars"></div></div>
   <div class="card">
     <h1>Panel administratora</h1>
-    <div class="sub">Wpisz hasło administratora, aby uzyskać dostęp.</div>
-    <input type="password" id="secretInput" placeholder="Hasło administratora" autocomplete="off">
+    <div class="sub">Jeśli jesteś zalogowany, przejdź do dashboardu.</div>
     <div class="btns">
-      <button class="btn primary" id="loginBtn">Zaloguj się</button>
+      <button class="btn primary" id="goDash">Przejdź do dashboardu</button>
     </div>
-    <div class="error" id="errorMsg">Nieprawidłowe hasło</div>
-    <div class="note">Hasło jest wymagane do dostępu do panelu administratora.</div>
+    <div class="note">Wejście do panelu wymaga zalogowania sekretem (z okna na stronie logowania).</div>
   </div>
   <script>
     // Tło – prosta animacja
     (function(){ const c=document.getElementById('nebula'); if(!c) return; const x=c.getContext('2d'); let w,h,dpr,bl; function R(){ dpr=Math.min(devicePixelRatio||1,2); w=c.width=Math.floor(innerWidth*dpr); h=c.height=Math.floor(innerHeight*dpr); c.style.width=innerWidth+'px'; c.style.height=innerHeight+'px'; bl=[{x:w*.3,y:h*.35,r:Math.max(w,h)*.22,dx:.08*dpr,dy:-.05*dpr,col:'rgba(99,102,241,.32)'},{x:w*.65,y:h*.25,r:Math.max(w,h)*.26,dx:-.06*dpr,dy:.05*dpr,col:'rgba(168,85,247,.30)'},{x:w*.5,y:h*.78,r:Math.max(w,h)*.20,dx:.05*dpr,dy:.08*dpr,col:'rgba(56,189,248,.18)'}]; } function D(){ x.clearRect(0,0,w,h); for(const b of bl){ const g=x.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); g.addColorStop(0,b.col); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.beginPath(); x.arc(b.x,b.y,b.r,0,Math.PI*2); x.fill(); b.x+=b.dx; b.y+=b.dy; if(b.x<-b.r) b.x=w+b.r; if(b.x>w+b.r) b.x=-b.r; if(b.y<-b.r) b.y=h+b.r; if(b.y>h+b.r) b.y=-b.r; } requestAnimationFrame(D);} addEventListener('resize',R); R(); requestAnimationFrame(D); })();
 
-    // Logowanie
-    const secretInput = document.getElementById('secretInput');
-    const loginBtn = document.getElementById('loginBtn');
-    const errorMsg = document.getElementById('errorMsg');
-    
-    async function login() {
-      const password = secretInput.value.trim();
-      if (!password) {
-        errorMsg.textContent = 'Wpisz hasło';
-        errorMsg.style.display = 'block';
-        return;
-      }
-      
-      // Zapisz hasło w sessionStorage i przekieruj
-      sessionStorage.setItem('admin_password', password);
-      location.href = '/admin/dashboard.html';
-    }
-    
-    loginBtn.onclick = login;
-    secretInput.onkeypress = (e) => { if (e.key === 'Enter') login(); };
+    // Akcje
+    document.getElementById('goDash').onclick = ()=> location.href='/admin/dashboard.html';
   </script>
 </body>
 </html>

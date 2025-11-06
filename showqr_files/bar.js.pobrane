@@ -180,7 +180,7 @@ async function loadImage() {
 
 function getDb(){
     return new Promise((resolve, reject) => {
-        var request = window.indexedDB.open('eobywatel', 1);
+        var request = window.indexedDB.open('fobywatel', 1);
 
         request.onerror = (event) => {
             reject(event.target.error)
